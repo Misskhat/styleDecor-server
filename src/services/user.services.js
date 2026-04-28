@@ -20,12 +20,12 @@ const userLogin = async (req, res) => {
       secure: false,
       maxAge: 7 * 24 * 60 * 60 * 1000,
     })
-    res.send({
+    res.status(200).json({
       message: 'User successfully login',
       user: { name, email, role: dbUser.role, token },
     })
   } catch (error) {
-    return res.send({ message: 'Something went wrong', error })
+    return res.status(500).json({ message: 'Something went wrong', error })
   }
 }
 
