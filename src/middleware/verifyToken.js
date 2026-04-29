@@ -3,8 +3,8 @@ const jwt = require('jsonwebtoken')
 const verifyToken = async (req, res, next) => {
   const token = req.cookies?.token
   if (!token) {
-    return res.status(401).json({
-      message: '401 Unauthorized',
+    return res.status(403).json({
+      message: '403 Forbidden',
     })
   }
 
@@ -17,3 +17,5 @@ const verifyToken = async (req, res, next) => {
     return res.status(500).json({ message: 'Internal Error Found Please check:- ' })
   }
 }
+
+module.exports = { verifyToken }
