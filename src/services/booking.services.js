@@ -76,6 +76,12 @@ const cancelBooking = async (req, res) => {
     if (email !== userEmail) {
       return res.status(500).json({ message: '403 Forbidden' })
     }
+
+    const deletedBooking = await bookingModel.deleteOne({ _id: id })
+    return res.status(200).json({
+      message: 'Successfully cancelled your Booking',
+      deletedBooking,
+    })
   } catch (err) {
     message: ('Something went wrong', err)
   }
