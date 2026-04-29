@@ -71,10 +71,10 @@ const cancelBooking = async (req, res) => {
   try {
     const { id } = req.params
     const { email } = req.userInfo
-    const { userEmail } = req.body
+    const booking = await bookingModel.findById(id)
 
-    if (email !== userEmail) {
-      return res.status(500).json({ message: '403 Forbidden' })
+    if (booking.userEmail !== email) {
+      return res.status(403).json({ message: '403 Forbidden' })
     }
 
     const deletedBooking = await bookingModel.deleteOne({ _id: id })
@@ -83,8 +83,9 @@ const cancelBooking = async (req, res) => {
       deletedBooking,
     })
   } catch (err) {
-    message: ('Something went wrong', err)
+    console.log(err)
+    return res.status(500).json({ message: 'Something went wrong', err })
   }
 }
 
-module.exports = { createBooking, getsAllBooking, myBooking, updateBooking }
+module.exports = { createBooking, getsAllBooking, myBooking, updateBooking, cancelBooking }
