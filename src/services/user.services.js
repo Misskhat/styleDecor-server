@@ -29,4 +29,38 @@ const userLogin = async (req, res) => {
   }
 }
 
-module.exports = { userLogin }
+const allUsers = async (req, res) => {
+  try {
+    const allUsers = await userModel.find()
+    return res.status(200).json({
+      message: 'Successfully fetch all users',
+      allUsers,
+    })
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json({
+      message: 'Something went wrong',
+      err,
+    })
+  }
+}
+
+const updateUserRole = async (req, res) => {
+  try {
+    const { id } = req.params
+    const update = 'decorator'
+    const updateUser = await userModel.findByIdAndUpdate({ _id: id }, { role: update })
+    return res.status(200).json({
+      message: 'User role update successfully',
+      user: updateUser,
+    })
+  } catch (err) {
+    console.log(err)
+    return res.status(500).json({
+      message: 'Something went wrong',
+      err,
+    })
+  }
+}
+
+module.exports = { userLogin, allUsers, updateUserRole }
