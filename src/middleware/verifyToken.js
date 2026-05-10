@@ -1,21 +1,28 @@
-const jwt = require('jsonwebtoken')
+const jwt = require("jsonwebtoken");
 
-const verifyToken = async (req, res, next) => {
-  const token = req.cookies?.token
+const verifyToken = (req, res, next) => {
+  // check cookie first
+  let token = req.cookies?.token;
+
+  // if no cookie, check Authorization header
   if (!token) {
-    return res.status(403).json({
-      message: '403 Forbidden',
-    })
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith("Bearer ")) {
+      token = authHeader.split(" ")[1];
+    }
+  }
+
+  if (!token) {
+    return res.status(401).json({ message: "Unauthorized" });
   }
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_TOKEN)
-    req.userInfo = decoded
-    next()
+    const decoded = jwt.verify(token, process.env.JWT_TOKEN);
+    req.userInfo = decoded;
+    next();
   } catch (err) {
-    console.log(err)
-    return res.status(500).json({ message: 'Internal Error Found Please check:- ' })
+    return res.status(403).json({ message: "Forbidden - invalid token" });
   }
-}
+};
 
-module.exports = { verifyToken }
+module.exports = { verifyToken };
