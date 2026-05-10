@@ -1,60 +1,85 @@
-const userModel = require('../models/user.model')
-const jwt = require('jsonwebtoken')
+const userModel = require("../models/user.model");
+const jwt = require("jsonwebtoken");
 
 const userLogin = async (req, res) => {
   try {
-    const { name, email } = req.body
+    const { name, email } = req.body;
     let dbUser = await userModel.findOne({
       email: email,
-    })
+    });
 
     if (!dbUser) {
-      dbUser = await userModel.create({ name, email, role: 'user' })
+      dbUser = await userModel.create({ name, email, role: "user" });
     }
 
-    const token = jwt.sign({ email: email, role: dbUser.role }, process.env.JWT_TOKEN, {
-      expiresIn: '7d',
-    })
-    res.cookie('token', token, {
+    const token = jwt.sign(
+      { email: email, role: dbUser.role },
+      process.env.JWT_TOKEN,
+      {
+        expiresIn: "7d",
+      },
+    );
+    res.cookie("token", token, {
       httpOnly: true,
-      secure: false,
+      secure: true,
+      sameSite: "none",
       maxAge: 7 * 24 * 60 * 60 * 1000,
-    })
+    });
     res.status(200).json({
-      message: 'User successfully login',
+      message: "User successfully login",
       user: { name, email, role: dbUser.role, token },
-    })
+    });
   } catch (error) {
-    return res.status(500).json({ message: 'Something went wrong', error })
+    return res.status(500).json({ message: "Something went wrong", error });
   }
-}
+};
 
 const allUsers = async (req, res) => {
   try {
-    const allUsers = await userModel.find()
+    const allUsers = await userModel.find();
     return res.status(200).json({
-      message: 'Successfully fetch all users',
+      message: "Successfully fetch all users",
       allUsers,
-    })
+    });
   } catch (err) {
-    console.log(err)
-    return res.status(500).json({ message: 'Something went wrong', err })
+    console.log(err);
+    return res.status(500).json({ message: "Something went wrong", err });
   }
-}
+};
 
 const updateUserRole = async (req, res) => {
   try {
-    const { id } = req.params
-    const update = 'decorator'
-    const updateUser = await userModel.findByIdAndUpdate({ _id: id }, { role: update })
+    const { id } = req.params;
+    const update = "decorator";
+    const updateUser = await userModel.findByIdAndUpdate(
+      { _id: id },
+      { role: update },
+    );
     return res.status(200).json({
-      message: 'User role update successfully',
+      message: "User role update successfully",
       user: updateUser,
-    })
+    });
   } catch (err) {
-    console.log(err)
-    return res.status(500).json({ message: 'Something went wrong', err })
+    console.log(err);
+    return res.status(500).json({ message: "Something went wrong", err });
   }
-}
+};
 
-module.exports = { userLogin, allUsers, updateUserRole }
+const getUserRole = async (req, res) => {
+  try {
+    const { email } = req.params;
+    const findUser = await userModel.findOne({ email: email });
+    if (!findUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+    const userRole = findUser.role;
+    return res.status(200).json({
+      userRole,
+    });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({ message: "Something went wrong", err });
+  }
+};
+
+module.exports = { userLogin, allUsers, updateUserRole, getUserRole };
