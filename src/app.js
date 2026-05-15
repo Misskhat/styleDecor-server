@@ -13,17 +13,24 @@ app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "http://localhost:5174",
-      "https://style-decor-client-seven.vercel.app", // add after deploy
+      "https://style-decor-client-seven.vercel.app",
     ],
     credentials: true,
   }),
 );
 app.use(cookieParser());
 
+// connect DB on every request
 app.use(async (req, res, next) => {
   await connectDB();
   next();
+});
+
+// root route
+app.get("/", async (req, res) => {
+  res.status(200).json({
+    message: "StyleDecor server is running! 🎨",
+  });
 });
 
 app.use("/api/services", serviceRouter);
